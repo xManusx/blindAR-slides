@@ -1,10 +1,86 @@
-% Newer versions pdftexs are not accepted by acrobat
-\pdfminorversion=4
-\documentclass[
-	t
-	%, handout
-	%, draft
-	]{beamer}
-\setbeameroption{hide notes}
+\documentclass[aspectratio=169,t]{beamer}
+%\documentclass[aspectratio=43,t,handout]{beamer}
 
-\input{talk.tex}
+\usepackage[ansinew]{inputenc}
+\usepackage[T1]{fontenc}
+%English version FAU Logo
+\usepackage[english]{babel}
+%German version FAU Logo
+%\usepackage[ngerman]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[backend=biber,sorting=none,doi=true,style=ieee]{biblatex}
+
+% Themes:
+%  - fau:          FAU theme
+%  - fau-med:      MedFak FAU theme
+%  - fau-nat:      NatFak FAU theme
+%  - fau-phil:     PhilFak FAU theme
+%  - fau-rw:       RWFak FAU theme
+%  - fau-rw-jura:  RWFak FB Jura FAU theme
+%  - fau-rw-wiso:  RWFak FB WISO FAU theme
+%  - fau-tf:       TechFak FAU theme
+%
+% Options:
+%  - image:        Cover image on title page
+%  - plain:        Plain title page
+%  - longtitle:    Title page layout for long title
+\usetheme[longtitle]{fau-tf}
+
+% Enable semi-transparent animation preview
+\setbeamercovered{transparent}
+
+
+\lstset{%
+  language=C++,
+  tabsize=2,
+  basicstyle=\tt\scriptsize,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numbersep=0.5em,
+  numberstyle=\tt\tiny
+}
+
+
+\defbibheading{bibliography}{}
+\addbibresource[label=primary]{references.bib}
+\nocite{*}
+
+
+% Title, authors, and date
+\title[Value/Proposition Canvas]{Value/Proposition Canvas for blindAR}
+\subtitle{Sub Title}
+\author[blindAR]{blindAR}
+% English version
+\institute[Innovation Lab]{Innovation Lab, Friedrich-Alexander University of Erlangen-Nuremberg}
+% German version
+%\institute[Lehrstuhl f\"ur XYZ]{Lehrstuhl f\"ur XYZ, Friedrich-Alexander-Universit\"at Erlangen-N\"urnberg}
+\date{\today}
+% Set additional logo (overwrites FAU seal)
+\logo{\includegraphics[width=.15\textwidth]{themefau/art/logo.png}}
+
+
+\begin{document}
+  % Title
+  \maketitle
+
+  %{ % Motivation
+    %\setbeamertemplate{footline}{}
+    %\begin{frame}[noframenumbering]{Motivation}
+      %Some motivational example\dots
+    %\end{frame}
+  %}
+
+  %{ % Outline
+    %\setbeamertemplate{footline}{}
+    %\begin{frame}[noframenumbering]{Outline}
+      %\tableofcontents
+    %\end{frame}
+  %}
+
+	\input{skeleton.tex}
+\end{document}
+

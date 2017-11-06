@@ -1,58 +1,100 @@
-.PHONY: all testcode presentation notes
+################################################################################
+# Settings
+################################################################################
 
-all: presentation notes
+COMPILER := pdflatex
+BIBTEXER := biber
 
-CXX = clang++
+DOCUMENT = presentation
+REFERENCES = references.bib
 
-CXXOPTS= -Weverything -Wno-missing-prototypes -Wno-ignored-qualifiers -Wno-unused-variable -Wno-c++11-extensions -Wno-global-constructors -Wno-padded -stdlib=libc++ -Werror -std=c++11 -Wno-non-virtual-dtor -Wno-c++98-compat -Wno-missing-variable-declarations
+TEXINPUTS := ./themefau/:$(TEXINPUTS)
 
-SNIPPETS := $(wildcard listings/*.c++)
 
-OBJS := $(notdir $(SNIPPETS))
-OBJS := $(addprefix /var/tmp/, $(OBJS))
-OBJS := $(OBJS:.c++=.o)
+################################################################################
+# Variables
+################################################################################
 
-DOTS := $(wildcard dot/*.dot)
+COMPILER := TEXINPUTS=$(TEXINPUTS) $(COMPILER)
 
-DOTPDF := $(notdir $(DOTS))
-DOTPDF := $(addprefix out/, $(DOTPDF))
-DOTPDF := $(DOTPDF:.dot=.dot.pdf)
-
-testcode: $(OBJS)
-
-/var/tmp/%.o: listings/%.c++
-	$(CXX) -c $< $(CPPOPTS) $(CXXOPTS) $(CPPFLAGS) $(CXXFLAGS) -o $@
-
-out/%.dot.pdf: dot/%.dot
-	dot -Tpdf -o $@ $<
-
-TEX := $(wildcard content/*.tex)
-STY := $(wildcard *.sty)
-
-LTX=$(shell which pdflatex)
-ifeq ($(LTX),"")
-    UNAME_S=$(shell uname -s)
-    ifeq ($(UNAME_S),Darwin)
-        LTX=/usr/local/texlive/2012/bin/x86_64-darwin/pdflatex
-    endif
+ifdef VERBOSE
+PIPE :=
+else
+PIPE := 1>/dev/null 2>/dev/null
+COMPILER := $(COMPILER) -interaction=nonstopmode
 endif
 
-OPTS=--synctex=1 --output-directory=out
+ifdef REFERENCES
+BIBDEP := %.bbl
+else
+BIBDEP :=
+endif
 
-presentation: out/presentation.pdf
 
-notes: out/notes.pdf
+################################################################################
+# Functions
+################################################################################
 
-# This is necessary as pdftex and xetex require the output directory to have the subdirectory as the directory where the tex files reside
-out/content:
-	mkdir out/content
+check_error = \
+  if [ ! $(1) -eq 0 ]; then \
+    cat $(2).log | perl -0777 -ne 'print m/\n! .*?\nl\.\d.*?\n.*?(?=\n)/gs'; \
+    exit 1; \
+  fi
 
-out/%.pdf: %.tex talk.tex $(TEX) $(SNIPPETS) $(STY) $(DOTPDF) out/content
-	$(LTX) $(OPTS) $<
-#	$(LTX) $(OPTS) $<
+compile = $(COMPILER) $(1).tex $(PIPE) || $(call check_error, $$?, $(1))
 
-out/notes.pdf: out/presentation.pdf
+
+################################################################################
+# Targets
+################################################################################
+
+.PHONY: all presentation clean distclean
+.PRECIOUS: %.pdf %.bcf %.bbl
+
+all: presentation
+
+presentation: $(DOCUMENT).build
+
+%.status:
+	@# Echo status message
+	@echo "Building $*.pdf"
+
+%.pdf %.bcf: %.status %.tex
+	@# Initial compile
+	@echo "  Compiling $*.tex"
+	@$(call compile, $*)
+
+%.bbl: %.status %.bcf $(REFERENCES) 
+	@# Bibliography
+	@echo "  Running $(BIBTEXER)"
+	-@TEXINPUTS=$(TEXINPUTS) $(BIBTEXER) $* $(PIPE)
+	@# Update references
+	@echo "  Updating references"
+	@$(call compile, $*)
+	@# Reset time stamp of .bbl to newer than .bcf
+	@touch $@
+
+%.build: %.status %.pdf $(BIBDEP)
+	@# Fill in missing references
+	@if test -e $*.log && \
+	    ( grep -q "There were undefined references." $*.log || \
+	      grep -q "Rerun to get outlines right" $*.log ); then  \
+	  echo "  Filling in missing references"; \
+	  $(call compile, $*); \
+	fi
+	@# Fix cross-references
+	@while test -e $*.log && \
+	    grep -q "Rerun to get cross-references right." $*.log; do \
+	  echo "  Fixing cross-references"; \
+	  $(call compile, $*); \
+	done
 
 clean:
-	rm -rf out/*
-	rm -f $(OBJS)
+	rm -rf *.aux *.ind *.idx *.toc *.out *.log *.ilg *.dvi *.bbl *.blg *.syg \
+		*.syi *.synctex *.slg *.lol *.lof *.ist *.gls *.glo *.gli *.glg \
+		*.alg *.acr *.acn *.ps *.defn *.nlo *.satz *.nav *.snm *.xml \
+		*.synctex.gz *.synctex *.vrb *.bcf *.makefile *.figlist
+
+distclean: clean
+	rm -f *.pdf
+
