@@ -48,12 +48,14 @@ compile = $(COMPILER) $(1).tex $(PIPE) || $(call check_error, $$?, $(1))
 # Targets
 ################################################################################
 
-.PHONY: all presentation clean distclean
+.PHONY: all presentation clean distclean $(DOCUMENT)169 $(DOCUMENT)43
 .PRECIOUS: %.pdf %.bcf %.bbl
 
-all: presentation
+all: presentation169
 
-presentation: $(DOCUMENT).build
+presentation169: $(DOCUMENT)169.build
+
+presentation43: $(DOCUMENT)43.build
 
 %.status:
 	@# Echo status message

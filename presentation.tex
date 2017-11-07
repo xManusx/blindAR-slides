@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169,t]{beamer}
+%\documentclass[aspectratio=169,t]{beamer}
 %\documentclass[aspectratio=43,t,handout]{beamer}
 
 \usepackage[ansinew]{inputenc}
@@ -11,6 +11,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage[backend=biber,sorting=none,doi=true,style=ieee]{biblatex}
+\usepackage{pdfpages}
 
 % Themes:
 %  - fau:          FAU theme
@@ -52,7 +53,7 @@
 
 % Title, authors, and date
 \title[Value/Proposition Canvas]{Value/Proposition Canvas for blindAR}
-\subtitle{Sub Title}
+%\subtitle{Sub Title}
 \author[blindAR]{blindAR}
 % English version
 \institute[Innovation Lab]{Innovation Lab, Friedrich-Alexander University of Erlangen-Nuremberg}
@@ -60,11 +61,25 @@
 %\institute[Lehrstuhl f\"ur XYZ]{Lehrstuhl f\"ur XYZ, Friedrich-Alexander-Universit\"at Erlangen-N\"urnberg}
 \date{\today}
 % Set additional logo (overwrites FAU seal)
-\logo{\includegraphics[width=.15\textwidth]{themefau/art/logo_bold.pdf}}
 
 
 \begin{document}
   % Title
+\logo{}
+	{ % Motivation
+    \setbeamertemplate{footline}{}
+		\begin{frame}[noframenumbering,plain,c]{}
+
+			%\vspace{2.3cm}
+			\centering
+{\includegraphics[width=.4\textwidth]{themefau/art/logo_bold.pdf}}
+	\vspace{1cm}
+
+
+
+    \end{frame}
+  }
+\logo{\includegraphics[width=.15\textwidth]{themefau/art/logo_bold.pdf}}
   \maketitle
 
   %{ % Motivation
@@ -80,7 +95,17 @@
       %\tableofcontents
     %\end{frame}
   %}
+{
+%\setbeamercolor{background canvas}{bg=}
+%\includepdf[pages=1]{persona_canvas.pdf}
+%}
+	\begin{frame}[noframenumbering,plain,c]{}
+		\centering
+		\includegraphics[height=1.25\textheight]{persona_canvas.JPG}
+\end{frame}
+
 
 	\input{skeleton.tex}
+
 \end{document}
 
